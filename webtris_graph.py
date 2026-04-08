@@ -1,7 +1,6 @@
 import heapq
 from collections import deque
 from webtris_client import APIClient, SingleSite, APIConnector
-import time
 
 
 class Node:
@@ -175,6 +174,7 @@ class Graph:
 
         return path, cheapest_times[end_name]
 
+
 class ClientCalculations:
     """
     Helper class to perform calculations using the WebTRIS API.
@@ -292,7 +292,7 @@ class ClientCalculations:
         if not avg_speed or avg_speed <= 0:
             return 20  # assume 20 minutes if speed is invalid
         return (distance_km / avg_speed) * 60
-    
+
     @classmethod
     def build_graph_from_api(cls, date: str, time_period: int) -> Graph:
         """

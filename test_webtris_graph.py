@@ -5,15 +5,15 @@ from webtris_graph import Graph, Node, ClientCalculations
 
 mock_data = {
     "7-12": [
-        {"id": 138,  "average_mph": 62},
-        {"id": 144,  "average_mph": 36},
-        {"id": 479,  "average_mph": 48},
-        {"id": 544,  "average_mph": 23},
-        {"id": 547,  "average_mph": 55},
-        {"id": 699,  "average_mph": 59},
-        {"id": 752,  "average_mph": 60},
-        {"id": 778,  "average_mph": None},
-        {"id": 885,  "average_mph": 60},
+        {"id": 138, "average_mph": 62},
+        {"id": 144, "average_mph": 36},
+        {"id": 479, "average_mph": 48},
+        {"id": 544, "average_mph": 23},
+        {"id": 547, "average_mph": 55},
+        {"id": 699, "average_mph": 59},
+        {"id": 752, "average_mph": 60},
+        {"id": 778, "average_mph": None},
+        {"id": 885, "average_mph": 60},
         {"id": 1135, "average_mph": None},
         {"id": 1221, "average_mph": None},
         {"id": 1270, "average_mph": 63},
@@ -56,7 +56,7 @@ mock_data = {
         {"id": 6156, "average_mph": 65},
     ],
     "12-13": [
-        {"id": 8,    "average_mph": 62},
+        {"id": 8, "average_mph": 62},
         {"id": 1811, "average_mph": 63},
         {"id": 1910, "average_mph": None},
         {"id": 2952, "average_mph": 63},
@@ -67,15 +67,15 @@ mock_data = {
         {"id": 5681, "average_mph": 61},
     ],
     "13-14": [
-        {"id": 279,  "average_mph": 41},
-        {"id": 737,  "average_mph": 63},
+        {"id": 279, "average_mph": 41},
+        {"id": 737, "average_mph": 63},
         {"id": 3671, "average_mph": 54},
         {"id": 4053, "average_mph": 40},
         {"id": 4354, "average_mph": 62},
         {"id": 5317, "average_mph": 57},
     ],
     "14-Heathrow": [
-        {"id": 746,  "average_mph": 34},
+        {"id": 746, "average_mph": 34},
         {"id": 2153, "average_mph": None},
         {"id": 2977, "average_mph": None},
     ],
@@ -94,7 +94,9 @@ sensor_id_to_edge = {
 
 
 def avg_speed(edge_key):
-    speeds = [s["average_mph"] for s in mock_data[edge_key] if s["average_mph"] is not None]
+    speeds = [
+        s["average_mph"] for s in mock_data[edge_key] if s["average_mph"] is not None
+    ]
     return sum(speeds) / len(speeds) if speeds else None
 
 
@@ -119,8 +121,11 @@ def mock_get_avg_speed(sensor_ids, date, time_period):
 @pytest.fixture
 def road_graph():
     """Full M25 road network built using mock sensor data instead of the API."""
-    with patch.object(ClientCalculations, "get_avg_speed_for_edge", side_effect=mock_get_avg_speed):
+    with patch.object(
+        ClientCalculations, "get_avg_speed_for_edge", side_effect=mock_get_avg_speed
+    ):
         return ClientCalculations.build_graph_from_api("19012026", 8)
+
 
 # Node tests
 def test_node_creation():
@@ -128,11 +133,13 @@ def test_node_creation():
     assert node.value == "M25 J7"
     assert node.adjacent_nodes == []
 
+
 def test_add_adjacent_node():
     n1, n2 = Node("A"), Node("B")
     n1.add_adjacent_node(n2, 5.0)
     assert len(n1.adjacent_nodes) == 1
     assert n1.adjacent_nodes[0] == (n2, 5.0)
+
 
 def test_no_duplicate_adjacent_nodes():
     n1, n2 = Node("A"), Node("B")
@@ -140,12 +147,14 @@ def test_no_duplicate_adjacent_nodes():
     n1.add_adjacent_node(n2, 5.0)
     assert len(n1.adjacent_nodes) == 1
 
+
 # Graph tests
 def test_edge_is_directed():
     g = Graph()
     g.add_edge("A", "B", 1.0)
     assert any(n.value == "B" for n, _ in g.get_node("A").adjacent_nodes)
     assert g.get_node("B").adjacent_nodes == []
+
 
 def test_get_node_missing_raises():
     g = Graph()
@@ -155,13 +164,16 @@ def test_get_node_missing_raises():
     except KeyError:
         pass
 
+
 def test_graph_has_all_nodes(road_graph):
     for name in ["M25 J7", "M25 J12", "M25 J13", "M25 J14", "Heathrow"]:
         assert name in road_graph.nodes
 
+
 def test_graph_has_six_edges(road_graph):
     total = sum(len(n.adjacent_nodes) for n in road_graph.nodes.values())
     assert total == 6
+
 
 # BFS tests
 def test_bfs_fewest_hops(road_graph):
@@ -169,36 +181,47 @@ def test_bfs_fewest_hops(road_graph):
     path = road_graph.bfs("M25 J7", "Heathrow")
     assert path == ["M25 J7", "M25 J12", "Heathrow"]
 
+
 def test_bfs_no_path(road_graph):
     road_graph.add_node("Isolated")
     assert road_graph.bfs("M25 J7", "Isolated") == []
 
+
 def test_bfs_same_start_end(road_graph):
     assert road_graph.bfs("M25 J7", "M25 J7") == ["M25 J7"]
 
+
 def test_bfs_simple_graph():
     g = Graph()
-    g.add_edge("A", "B", 1); g.add_edge("A", "C", 1)
-    g.add_edge("B", "D", 1); g.add_edge("C", "D", 1)
+    g.add_edge("A", "B", 1)
+    g.add_edge("A", "C", 1)
+    g.add_edge("B", "D", 1)
+    g.add_edge("C", "D", 1)
     path = g.bfs("A", "D")
     assert len(path) == 3 and path[0] == "A" and path[-1] == "D"
+
 
 # DFS tests
 def test_dfs_finds_valid_path(road_graph):
     path = road_graph.dfs("M25 J7", "Heathrow")
     assert path[0] == "M25 J7" and path[-1] == "Heathrow"
 
+
 def test_dfs_no_path(road_graph):
     road_graph.add_node("Isolated")
     assert road_graph.dfs("M25 J7", "Isolated") == []
 
+
 def test_dfs_same_start_end(road_graph):
     assert road_graph.dfs("M25 J7", "M25 J7") == ["M25 J7"]
 
+
 def test_dfs_linear_graph():
     g = Graph()
-    g.add_edge("A", "B", 1); g.add_edge("B", "C", 1)
+    g.add_edge("A", "B", 1)
+    g.add_edge("B", "C", 1)
     assert g.dfs("A", "C") == ["A", "B", "C"]
+
 
 # Dijkstra tests
 def test_dijkstra_no_path(road_graph):
@@ -206,23 +229,37 @@ def test_dijkstra_no_path(road_graph):
     path, cost = road_graph.dijkstra("M25 J7", "Isolated")
     assert path == [] and cost == float("inf")
 
+
 def test_dijkstra_same_start_end(road_graph):
     path, cost = road_graph.dijkstra("M25 J7", "M25 J7")
     assert path == ["M25 J7"] and cost == 0.0
 
+
 def test_dijkstra_known_graph():
     # A->B costs 10, A->C->B costs 2 — must pick A->C->B
     g = Graph()
-    g.add_edge("A", "B", 10.0); g.add_edge("A", "C", 1.0); g.add_edge("C", "B", 1.0)
+    g.add_edge("A", "B", 10.0)
+    g.add_edge("A", "C", 1.0)
+    g.add_edge("C", "B", 1.0)
     path, cost = g.dijkstra("A", "B")
     assert path == ["A", "C", "B"] and cost == 2.0
+
 
 def test_dijkstra_picks_minimum_route(road_graph):
     _, dijkstra_cost = road_graph.dijkstra("M25 J7", "Heathrow")
 
-    route_a = travel_time(23.0, avg_speed("7-12")) + travel_time(3.0, avg_speed("12-13")) + travel_time(3.0, avg_speed("13-14")) + travel_time(0.0, avg_speed("14-Heathrow"))
+    route_a = (
+        travel_time(23.0, avg_speed("7-12"))
+        + travel_time(3.0, avg_speed("12-13"))
+        + travel_time(3.0, avg_speed("13-14"))
+        + travel_time(0.0, avg_speed("14-Heathrow"))
+    )
     route_b = travel_time(23.0, avg_speed("7-12")) + 20.0
-    route_c = travel_time(23.0, avg_speed("7-12")) + travel_time(3.0, avg_speed("12-13")) + travel_time(3.8, avg_speed("A30"))
+    route_c = (
+        travel_time(23.0, avg_speed("7-12"))
+        + travel_time(3.0, avg_speed("12-13"))
+        + travel_time(3.8, avg_speed("A30"))
+    )
 
     assert dijkstra_cost == min(route_a, route_b, route_c)
 
@@ -233,18 +270,22 @@ def test_avg_speed_ignores_none():
     expected = (62 + 63 + 63 + 60 + 65 + 61 + 61) / 7
     assert avg_speed("12-13") == expected
 
+
 def test_travel_time_formula():
     assert travel_time(23.0, 60.0) == 23.0
+
 
 def test_travel_time_defaults_to_20():
     assert travel_time(10.0, None) == 20.0
     assert travel_time(10.0, 0) == 20.0
     assert travel_time(10.0, -1) == 20.0
 
+
 def test_route_b_fixed_20_minutes(road_graph):
     j12 = road_graph.get_node("M25 J12")
     heathrow_weights = [w for n, w in j12.adjacent_nodes if n.value == "Heathrow"]
     assert len(heathrow_weights) == 1 and heathrow_weights[0] == 20.0
+
 
 def test_calculate_travel_time_static():
     assert ClientCalculations.calculate_travel_time(60.0, 60.0) == 60

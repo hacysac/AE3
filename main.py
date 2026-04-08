@@ -1,10 +1,13 @@
-from webtris_graph import Graph, Node, ClientCalculations
+from webtris_graph import ClientCalculations
 
 start = "M25 J7"
 end = "Heathrow"
 
+
 def main():
-    graph = ClientCalculations.build_graph_from_api("19012026", 8)  # example date and time period
+    graph = ClientCalculations.build_graph_from_api(
+        "19012026", 8
+    )  # example date and time period
 
     path1 = graph.dfs(start, end)
     print(f"Path from {start} to {end} using DFS: {path1}")
