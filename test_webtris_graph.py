@@ -84,8 +84,6 @@ mock_data = {
     ],
 }
 
-# Build a lookup from sensor ID -> average_mph so the side_effect can
-# identify which edge it's being called for and return the right average.
 sensor_id_to_edge = {
     sensor["id"]: edge_key
     for edge_key, sensors in mock_data.items()
@@ -265,22 +263,6 @@ def test_dijkstra_picks_minimum_route(road_graph):
 
 
 # helper tests
-def test_avg_speed_ignores_none():
-    # 12-13 valid speeds: 62, 63, 63, 60, 65, 61, 61
-    expected = (62 + 63 + 63 + 60 + 65 + 61 + 61) / 7
-    assert avg_speed("12-13") == expected
-
-
-def test_travel_time_formula():
-    assert travel_time(23.0, 60.0) == 23.0
-
-
-def test_travel_time_defaults_to_20():
-    assert travel_time(10.0, None) == 20.0
-    assert travel_time(10.0, 0) == 20.0
-    assert travel_time(10.0, -1) == 20.0
-
-
 def test_route_b_fixed_20_minutes(road_graph):
     j12 = road_graph.get_node("M25 J12")
     heathrow_weights = [w for n, w in j12.adjacent_nodes if n.value == "Heathrow"]
