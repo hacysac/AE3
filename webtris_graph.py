@@ -293,13 +293,13 @@ class ClientCalculations:
         return sum(speeds) / len(speeds)
 
     @staticmethod
-    def calculate_travel_time(distance_km: float, avg_speed: float) -> float:
+    def calculate_travel_time(distance_mi: float, avg_speed: float) -> float:
         """
         Convert distance and speed into travel time in minutes.
         """
         if not avg_speed or avg_speed <= 0:
             return 20  # assume 20 minutes if speed is invalid
-        return (distance_km / avg_speed) * 60
+        return (distance_mi / avg_speed) * 60
 
     @classmethod
     def build_graph_from_api(cls, date: str, time_period: int) -> Graph:
