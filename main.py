@@ -9,14 +9,18 @@ def main():
         "19012026", 8
     )  # example date and time period
 
+    print()
+
     path1 = graph.dfs(start, end)
-    print(f"Path from {start} to {end} using DFS: {path1}")
+    print(f"Path from {start} to {end} using DFS: {path1[0]}, in {path1[1]} minutes")
 
     path2 = graph.bfs(start, end)
-    print(f"Path from {start} to {end} using BFS: {path2}")
+    print(f"Path from {start} to {end} using BFS: {path2[0]}, in {path2[1]} minutes")
 
     path3 = graph.dijkstra(start, end)
-    print(f"Path from {start} to {end} using Dijkstra's: {path3}")
+    print(
+        f"Path from {start} to {end} using Dijkstra's: {path3[0]}, in {path3[1]} minutes"
+    )
 
 
 if __name__ == "__main__":

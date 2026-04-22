@@ -177,16 +177,16 @@ def test_graph_has_six_edges(road_graph):
 def test_bfs_fewest_hops(road_graph):
     # Route B (J7 -> J12 -> Heathrow) is 3 nodes — fewest possible
     path = road_graph.bfs("M25 J7", "Heathrow")
-    assert path == ["M25 J7", "M25 J12", "Heathrow"]
+    assert path[0] == ["M25 J7", "M25 J12", "Heathrow"]
 
 
 def test_bfs_no_path(road_graph):
     road_graph.add_node("Isolated")
-    assert road_graph.bfs("M25 J7", "Isolated") == []
+    assert road_graph.bfs("M25 J7", "Isolated")[0] == []
 
 
 def test_bfs_same_start_end(road_graph):
-    assert road_graph.bfs("M25 J7", "M25 J7") == ["M25 J7"]
+    assert road_graph.bfs("M25 J7", "M25 J7")[0] == ["M25 J7"]
 
 
 def test_bfs_simple_graph():
@@ -196,29 +196,29 @@ def test_bfs_simple_graph():
     g.add_edge("B", "D", 1)
     g.add_edge("C", "D", 1)
     path = g.bfs("A", "D")
-    assert len(path) == 3 and path[0] == "A" and path[-1] == "D"
+    assert len(path[0]) == 3 and path[0][0] == "A" and path[0][-1] == "D"
 
 
 # DFS tests
 def test_dfs_finds_valid_path(road_graph):
     path = road_graph.dfs("M25 J7", "Heathrow")
-    assert path[0] == "M25 J7" and path[-1] == "Heathrow"
+    assert path[0][0] == "M25 J7" and path[0][-1] == "Heathrow"
 
 
 def test_dfs_no_path(road_graph):
     road_graph.add_node("Isolated")
-    assert road_graph.dfs("M25 J7", "Isolated") == []
+    assert road_graph.dfs("M25 J7", "Isolated")[0] == []
 
 
 def test_dfs_same_start_end(road_graph):
-    assert road_graph.dfs("M25 J7", "M25 J7") == ["M25 J7"]
+    assert road_graph.dfs("M25 J7", "M25 J7")[0] == ["M25 J7"]
 
 
 def test_dfs_linear_graph():
     g = Graph()
     g.add_edge("A", "B", 1)
     g.add_edge("B", "C", 1)
-    assert g.dfs("A", "C") == ["A", "B", "C"]
+    assert g.dfs("A", "C")[0] == ["A", "B", "C"]
 
 
 # Dijkstra tests

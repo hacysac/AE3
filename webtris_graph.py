@@ -65,7 +65,7 @@ class Graph:
             raise KeyError(f"Node '{name}' not found in graph.")
         return self.nodes[name]
 
-    def bfs(self, start_name: str, end_name: str) -> list[str]:
+    def bfs(self, start_name: str, end_name: str) -> tuple[list[str], float]:
         """
         Breadth first search to finds the path with the fewest nodes.
         """
@@ -76,25 +76,31 @@ class Graph:
         # Mark as visited on enqueue, not dequeue (prevents duplicates in queue)
         visited: set[str] = {start.value}
 
-        # Queue entries: (current_node, path_so_far)
-        queue: deque[tuple[Node, list[str]]] = deque([tuple([start, [start.value]])])
+        # Queue entries: (current_node, path_so_far, total_weight)
+        queue: deque[tuple[Node, list[str], float]] = deque(
+            [(start, [start.value], 0.0)]
+        )
 
         while queue:
-            current, path = queue.popleft()
+            current, path, total_weight = queue.popleft()
 
             if current is end:
-                return path  # return the path as a list of node names
+                return path, total_weight
 
-            for neighbour, _ in current.adjacent_nodes:
+            for neighbour, weight in current.adjacent_nodes:
                 if neighbour.value not in visited:
                     visited.add(neighbour.value)  # mark on enqueue
-                    queue.append((neighbour, path + [neighbour.value]))
+                    queue.append(
+                        (neighbour, path + [neighbour.value], total_weight + weight)
+                    )
 
-        return []  # return empty path if no path found
+        return [], float(
+            "inf"
+        )  # return empty path and infinite weight if no path found
 
     def dfs(
         self, start_name: str, end_name: str, visited: set[str] = None
-    ) -> list[str]:
+    ) -> tuple[list[str], float]:
         """
         Depth first search to recursively find a valid path to the destination.
         """
@@ -107,15 +113,17 @@ class Graph:
         visited.add(current.value)
 
         if current is end:
-            return [current.value]  # return the final node as a 1-element path
+            return [current.value], 0.0  # return the final node as a 1-element path
 
-        for neighbour, _ in current.adjacent_nodes:
+        for neighbour, weight in current.adjacent_nodes:
             if neighbour.value not in visited:
                 result = self.dfs(neighbour.value, end_name, visited)
-                if result:
-                    return [current.value] + result  # build the path
+                if result[0]:
+                    return [current.value] + result[0], result[
+                        1
+                    ] + weight  # build the path
 
-        return []
+        return [], float("inf")
 
     def dijkstra(self, start_name: str, end_name: str) -> tuple[list[str], float]:
         """
